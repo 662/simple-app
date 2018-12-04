@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>snake | 662</title>
+    <style>
+        section { padding: 0; margin: 0; position: relative; }
+        .scoreboard { padding: 4px; position: absolute; color: #fff; opacity: .5; font-family: 'Consolas' }
+        #boxStage { background-color: #000; }
+    </style>
+</head>
+
+<body>
+    <section>
+        <div class="scoreboard"><span>score:</span><span id="boxScoreboard"></span></div>
+        <canvas id="boxStage" width="600" height="400"></canvas>
+    </section>
+    <script>
+        var stage = document.querySelector('#boxStage').getContext('2d'),
+            scoreboard = document.querySelector('#boxScoreboard'),
+            snake = [245, 244], // snake: 蛇所占据的格子
+            food = 247,         // food: 食物刷新的位置
+            score = -1,         // score: 总的分数
+            direction = 1,      // direction: 蛇的移动方向
+            w = 20,             // block width: 每个格子的宽度
+            h = 20,             // block height: 每个格子的高度
+            p = 1,              // block padding: 每个格子的填充边距
+            c = 30,             // column: 整个画布的列数
+            r = 20,             // row: 整个画布的行数
+            total = c * r,      // total blocks: 总格子数
+            temp;               // 一个临时变量用来存一些临时数据
+        function drawBlock(index, color) {
+            stage.fillStyle = color;
+            stage.fillRect(index % c * w + p, ~~(index / c) * h + p, w - p * 2, h - p * 2);
+        }
+        function drawGameOver() {
+            stage.fillStyle = '#eee';
+            stage.font = "30px Verdana";
+            stage.textAlign = "center";
+            stage.fillText("Game Over", 300, 200);
+        }
+        document.onkeydown = function (e) {
+            direction = snake[1] - snake[0] !== (temp = [-1, -c, 1, c][e.keyCode - 37] || direction) ? temp : direction;
+        }
+        
+        ~function () {
+            temp = snake[0] + direction;
+            if (snake.includes(temp) || temp < 0 || temp > total - 1 || (direction === 1 && temp % c === 0) || (direction === -1 && temp % c === c - 1)) {
+                return drawGameOver();
+            }
+            snake.unshift(temp);
+            if (temp === food) {
+                drawBlock(temp, "#00ffff");
+                scoreboard.innerHTML = ++score;
+                while (snake.includes(food = ~~(Math.random() * total)));
+                drawBlock(food, "#ff00ff");
+            } else {
+                drawBlock(temp, "#fff");
+                drawBlock(snake.pop(), "#000");
+            }
+            return setTimeout(arguments.callee, 50 + ((temp = 70 - score) > 0 ? temp : 0));
+        }()
+    </script>
+</body>
+
+</html>
